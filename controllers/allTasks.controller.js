@@ -1,18 +1,32 @@
+const Task = require('../model/task.model'); // Asegúrate de que el modelo esté bien importado
+const { validationResult } = require('express-validator');
 
-const allTask = async (req, res) => {
-    const { id_user } = req.query;
+
+const allTasks = async (req, res) => {
     try {
-        // Busco todas las tareas del usuario
-        const allTaskOfUser = await User.findByPk(id_user, {
-            include: [{ model: Task }],
-        });
+        
+        // Validar errores
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
 
-        if(!allTaskOfUser.tasks || allTaskOfUser.tasks.length === 0) return res.status(404).json({status:404,error:"El usuario no posee tareas"});
+        // Si no hay errores, procesar los datos
+        const { status } = req.query;
 
-        res.status(200).json({ status: 200, message: "User tasks", data: allTaskOfUser.tasks });
+        // Simulación de lógica: Filtrar tareas por estado y paginación
+        let filter = {};
+        if (status) {
+            filter.completed = status === 'completed';
+        }
+
+        const tasks = await Task.find(filter)
+
+        res.json(tasks);
     } catch (error) {
-        res.status(500).json({ status: 500, error: error.message });
+        console.error(error);
+        res.status(500).json({ message: 'Error al obtener las tareas' });
     }
 };
 
-module.exports = allTask;
+module.exports = allTasks ;

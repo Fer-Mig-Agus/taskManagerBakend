@@ -12,17 +12,15 @@ const createTask = async (req, res) => {
             const uniqueErrors = Array.from(new Set(errors.array().map(JSON.stringify))).map(JSON.parse);
             return res.status(400).json({ errors: uniqueErrors });
         }
-
-        const { title, description } = req.body;
         
-        const newTask = new Task({
-            title,
-            description
-        });
+        const { id } = req.params;
+        const task=await Task.findById(id);
 
-        await newTask.save();
+        if (!task) {
+            return res.status(404).json({ message: 'Tarea no encontrada' });
+        }
 
-        res.status(201).json({ status: 201, message: "The task was successfully created", data: newTask });
+        res.status(201).json({ status: 201, message: "Details of the task", data: task });
     } catch (error) {
         res.status(500).json({ status: 500, error: error.message });
     }

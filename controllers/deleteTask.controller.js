@@ -1,28 +1,28 @@
+const Task = require('../model/task.model'); // Asegúrate de que el modelo esté bien importado
+const { validationResult } = require('express-validator');
 
-const allTask = async (req, res) => {
-    const { id_user } = req.query;
-    const { id_task } = req.params;
+
+const allTasks = async (req, res) => {
     try {
+        
+        // Validar errores
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
 
-        // Busco todas las tareas del usuario
-        const allTaskOfUser = await User.findByPk(id_user, {
-            include: [{ model: Task }],
-        });
+        const {id} =req.params;
 
+        const task = await Task.findByIdAndDelete(id)
+        if (!task) {
+            return res.status(404).json({ message: "Task not found" });
+        }
 
-        //Verifico si la tarea le pertenece al usuario
-        const taskSearch = allTaskOfUser.tasks.filter((task) => task.id === id_task);
-
-        if (!taskSearch || taskSearch.length == 0) return res.status(404).json({ status: 404, error: "This task does not belong to the user" })
-
-        const task = await Task.findByPk(id_task);
-
-        await task.destroy();
-
-        res.status(200).json({ status: 200, message: "The task has been eliminated" });
+        res.send('Eliminado');
     } catch (error) {
-        res.status(500).json({ status: 500, error: error.message });
+        console.error(error);
+        res.status(500).json({ message: 'Error al obtener las tareas' });
     }
 };
 
-module.exports = allTask;
+module.exports = allTasks ;

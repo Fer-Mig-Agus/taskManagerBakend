@@ -1,60 +1,41 @@
+const { validationResult } = require('express-validator');
+const Task = require('../model/task.model');
 
-const createTask = async (req, res) => {
-    const { id_user } = req.query;
-    const { id_task } = req.params;
-    const { task, is_completed } = req.body;
+const updateTask = async (req, res) => {
 
-    console.log("entro a la funcino: tarea:", task);
-    console.log("entro con iscompleted: ", is_completed);
+
 
     try {
-        // Busco todas las tareas del usuario
-        const allTaskOfUser = await User.findByPk(id_user, {
-            include: [{ model: Task }],
-        });
-
-        //Verifico si la tarea le pertenece al usuario
-        const taskSearch = allTaskOfUser.tasks.filter((task) => task.id === id_task);
-
-        console.log("buscó la tarea:", taskSearch);
-
-        if (!taskSearch || taskSearch.length == 0) return res.status(404).json({ status: 404, error: "This task does not belong to the user" })
-
-        console.log("si tiene que cambiar el contenido de la terea, entrara")
-        // Verifico que la nueva tarea no exista
-        if (task && allTaskOfUser.tasks.length !== 0) {
-            console.log("entro para cambiar")
-            let bandera = false;
-            for (let i = 0; i < allTaskOfUser.tasks.length; i++) {
-                if (task.toLowerCase() === allTaskOfUser.tasks[i].task.toLowerCase()) {
-                    bandera = true;
-                    i = allTaskOfUser.tasks.length;
-                }
-            }
-            if (bandera) return res.status(409).json({ status: 409, error: "The task has already been added" });
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            // Eliminar duplicados (opcional, por si hay redundancias)
+            const uniqueErrors = Array.from(new Set(errors.array().map(JSON.stringify))).map(JSON.parse);
+            return res.status(400).json({ errors: uniqueErrors });
         }
 
-        console.log("paso lo del contenido")
+        const { title, description, completed } = req.body;
+        const { id } = req.params;
 
-        // Busco la tarea a actualizar
-        const taskUpdate = await Task.findByPk(id_task);
+        const updateFields = {}; // Objeto para almacenar los campos a actualizar
 
-        console.log("tarea encontrada de nuevo:", taskUpdate);
+        // Solo agrega al objeto los campos que existan en la solicitud
+        if (title !== undefined) updateFields.title = title;
+        if (description !== undefined) updateFields.description = description;
+        if (completed !== undefined) updateFields.completed = completed;
 
-        taskUpdate.update({
-            task,
-            is_completed
-        })
+        const updatedTask = await Task.findByIdAndUpdate(id, updateFields, {
+            new: true, // Devuelve la tarea actualizada
+            runValidators: true, // Ejecuta las validaciones del modelo
+        });
 
+        if (!updatedTask) {
+            return res.status(404).json({ message: "Task not found" });
+        }
 
-        await taskUpdate.save();
-
-        console.log("cambios guardados: ", taskUpdate);
-
-        res.status(200).json({ status: 200, message: "The task was successfully updated", data: taskUpdate });
+        res.status(200).json({ message: "Task updated successfully", data: updatedTask });
     } catch (error) {
         res.status(500).json({ status: 500, error: error.message });
     }
 };
 
-module.exports = createTask;
+module.exports = updateTask;
