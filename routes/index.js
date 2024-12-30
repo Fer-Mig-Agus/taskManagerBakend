@@ -11,10 +11,10 @@ const detailById = require('../controllers/detailById.controller');
 
 // CREATE NEW TASK
 routes.post("/tasks", [
-    body('title', 'Ingrese un título válido')
+    body('title', 'Enter a valid title')
         .exists()
         .isLength({ min: 5 }),
-    body('description', 'Ingrese una descripción válida')
+    body('description', 'Enter a valid description')
         .optional()
         .isLength({ min: 10 })
 ], createTask)
@@ -22,40 +22,40 @@ routes.post("/tasks", [
 
 // GET ALL TASKS AND FILTER THEY
 routes.get("/tasks", [
-    query('status', 'El estado no es válido') // Mensaje de error
-        .optional() // El parámetro es opcional
-        .isIn(['completed', 'pending']).withMessage('El estado debe ser "completed" o "pending"'),
+    query('status', 'The status is not valid') 
+        .optional() 
+        .isIn(['completed', 'pending']).withMessage('The status must be “completed” or “pending”'),
 ], allTasks)
 
 
 // GET TASK DETAILS ESPECIFIC
 routes.get("/tasks/:id", [
-    param('id', 'El ID no es válido') // Mensaje de error
-        .exists().withMessage('El ID es obligatorio') // Validación de existencia
-        .isMongoId().withMessage('El ID debe ser un ObjectId válido') // Validación de formato
+    param('id', 'ID is invalid') 
+        .exists().withMessage('ID is required') 
+        .isMongoId().withMessage('The ID must be a valid ObjectId') 
 ], detailById)
 
 // UPDATE A TASK
 routes.put("/tasks/:id", [
-    param('id', 'El ID no es válido') // Mensaje de error
-        .exists().withMessage('El ID es obligatorio') // Validación de existencia
-        .isMongoId().withMessage('El ID debe ser un ObjectId válido'), // Validación de formato
-    body('title', 'Ingrese un título válido')
+    param('id', 'ID is invalid') 
+        .exists().withMessage('ID is required') 
+        .isMongoId().withMessage('The ID must be a valid ObjectId'), 
+    body('title', 'Enter a valid title')
         .optional()
         .isLength({ min: 5 }),
-    body('description', 'Ingrese una descripción válida')
+    body('description', 'Enter a valid description')
         .optional()
         .isLength({ min: 10 }),
-    body('completed', 'El campo completed debe ser un booleano')
+    body('completed', 'The completed field must be a boolean')
         .optional()
         .isBoolean(),
 ], updateTask)
 
 // DELETE A TASK
 routes.delete("/tasks/:id", [
-    param('id', 'El ID no es válido') // Mensaje de error
-        .exists().withMessage('El ID es obligatorio') // Validación de existencia
-        .isMongoId().withMessage('El ID debe ser un ObjectId válido'),
+    param('id', 'ID is invalid') 
+        .exists().withMessage('ID is required')
+        .isMongoId().withMessage('The ID must be a valid ObjectId'),
 ], deleteTask)
 
 module.exports = routes;

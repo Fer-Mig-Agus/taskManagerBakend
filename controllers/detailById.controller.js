@@ -8,7 +8,6 @@ const createTask = async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            // Eliminar duplicados (opcional, por si hay redundancias)
             const uniqueErrors = Array.from(new Set(errors.array().map(JSON.stringify))).map(JSON.parse);
             return res.status(400).json({ errors: uniqueErrors });
         }
