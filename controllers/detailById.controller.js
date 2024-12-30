@@ -17,7 +17,7 @@ const createTask = async (req, res) => {
         const task=await Task.findById(id);
 
         if (!task) {
-            return res.status(404).json({ message: 'Tarea no encontrada' });
+            return res.status(404).json({status:404 ,error: 'Task not found' });
         }
 
         res.status(201).json({ status: 201, message: "Details of the task", data: task });

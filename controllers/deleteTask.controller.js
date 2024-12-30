@@ -15,13 +15,12 @@ const allTasks = async (req, res) => {
 
         const task = await Task.findByIdAndDelete(id)
         if (!task) {
-            return res.status(404).json({ message: "Task not found" });
+            return res.status(404).json({ status:404,error: "Task not found" });
         }
 
-        res.send('Eliminado');
+        res.status(204);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error al obtener las tareas' });
+        res.status(500).json({ status: 500, error: error.message });
     }
 };
 

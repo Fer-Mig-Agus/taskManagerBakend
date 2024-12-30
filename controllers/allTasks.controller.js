@@ -22,10 +22,11 @@ const allTasks = async (req, res) => {
 
         const tasks = await Task.find(filter)
 
-        res.json(tasks);
+        if(!tasks) return res.status(404).json({status:404,error:'There are no tasks loaded'})
+
+        res.status(200).json({status:200,message:'Complete list',data:tasks});
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error al obtener las tareas' });
+        res.status(500).json({ status: 500, error: error.message });
     }
 };
 
